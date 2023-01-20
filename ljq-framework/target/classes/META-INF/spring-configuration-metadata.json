@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "oss",
+      "type": "com.ljq.service.impl.ImgUploadService",
+      "sourceType": "com.ljq.service.impl.ImgUploadService"
+    }
+  ],
+  "properties": [
+    {
+      "name": "oss.access-key",
+      "type": "java.lang.String",
+      "sourceType": "com.ljq.service.impl.ImgUploadService"
+    },
+    {
+      "name": "oss.bucket",
+      "type": "java.lang.String",
+      "sourceType": "com.ljq.service.impl.ImgUploadService"
+    },
+    {
+      "name": "oss.secret-key",
+      "type": "java.lang.String",
+      "sourceType": "com.ljq.service.impl.ImgUploadService"
+    }
+  ],
+  "hints": []
+}
