@@ -1,3 +1,4 @@
+D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\runner\UpdateViewCountRunner.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\UploadController.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\ArticleController.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\UserController.java
@@ -7,4 +8,5 @@ D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\BlogLoginController.ja
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\LinkController.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\controller\CommentController.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\configer\SecurityConfiger.java
+D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\configer\SwaggerConfig.java
 D:\code\ljqBlog\ljq-blog\src\main\java\com\ljq\filter\JwtAurhticationFilter.java

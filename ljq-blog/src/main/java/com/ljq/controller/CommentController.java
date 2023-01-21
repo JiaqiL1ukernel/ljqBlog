@@ -2,8 +2,10 @@ package com.ljq.controller;
 
 import com.ljq.constant.SystemConstant;
 import com.ljq.domain.ResponseResult;
+import com.ljq.domain.dto.AddCommentDto;
 import com.ljq.domain.entity.Comment;
 import com.ljq.service.CommentService;
+import com.ljq.utils.BeanCopyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,8 +27,9 @@ public class CommentController {
     }
 
     @PostMapping()
-    public ResponseResult addComment(@RequestBody Comment comment){
-        return commentService.addComment(comment);
+    public ResponseResult addComment(@RequestBody AddCommentDto comment){
+        Comment comment1 = BeanCopyUtil.copyBean(comment,Comment.class);
+        return commentService.addComment(comment1);
     }
 
     @GetMapping("/linkCommentList")
