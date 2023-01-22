@@ -3,7 +3,9 @@ package com.ljq.controller;
 import com.ljq.domain.ResponseResult;
 import com.ljq.domain.dto.ArticleDto;
 import com.ljq.domain.dto.UpdateArticleDto;
+import com.ljq.domain.entity.Menu;
 import com.ljq.service.ArticleService;
+import com.ljq.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,9 @@ public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private MenuService menuService;
 
     @GetMapping("/list")
     public ResponseResult list(Integer pageNum, Integer pageSize, ArticleDto articleDto){
@@ -34,4 +39,6 @@ public class ArticleController {
     public ResponseResult deleteArticle(@PathVariable("id")Long id){
         return articleService.deleteArticle(id);
     }
+
+
 }
