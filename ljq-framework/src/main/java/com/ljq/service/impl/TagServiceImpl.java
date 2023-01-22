@@ -8,6 +8,8 @@ import com.ljq.domain.dto.TagListDto;
 import com.ljq.domain.entity.Tag;
 import com.ljq.domain.vo.PageVo;
 import com.ljq.domain.vo.TagVo;
+import com.ljq.enums.AppHttpCodeEnum;
+import com.ljq.exception.SystemException;
 import com.ljq.mapper.TagMapper;
 import com.ljq.service.TagService;
 import com.ljq.utils.BeanCopyUtil;
@@ -40,8 +42,21 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
     @Override
     public ResponseResult addTag(TagListDto tagListDto) {
-        save()
-        return null;
+        if(!StringUtils.hasText(tagListDto.getName())){
+            throw new SystemException(AppHttpCodeEnum.CONTENT_NOT_NULL);
+        }
+        Tag tag = BeanCopyUtil.copyBean(tagListDto, Tag.class);
+        save(tag);
+        return ResponseResult.okResult();
     }
+
+    @Override
+    public ResponseResult getTagInfo(Integer id) {
+        Tag tag = getById(id);
+        TagVo tagVo = BeanCopyUtil.copyBean(tag, TagVo.class);
+        return ResponseResult.okResult(tagVo);
+    }
+
+
 }
 

@@ -3,13 +3,18 @@ package com.ljq.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ljq.constant.SystemConstant;
+import com.ljq.domain.ResponseResult;
 import com.ljq.domain.entity.Menu;
 import com.ljq.domain.vo.MenuVo;
+import com.ljq.domain.vo.SelectMenuVo;
 import com.ljq.mapper.MenuMapper;
 import com.ljq.service.MenuService;
+import com.ljq.utils.BeanCopyUtil;
 import com.ljq.utils.SecurityUtils;
+import kotlin.jvm.internal.Lambda;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,6 +55,15 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         }
         menus = getMenuTree(menus,0L);
         return menus;
+    }
+
+    @Override
+    public ResponseResult listByMenuName(String status, String menuName) {
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.hasText(menuName),Menu::getMenuName,menuName);
+        queryWrapper.eq(StringUtils.hasText(status),Menu::getStatus,status);
+        List<SelectMenuVo> selectMenuVos = BeanCopyUtil.copyList(list(queryWrapper), SelectMenuVo.class);
+        return ResponseResult.okResult(selectMenuVos);
     }
 
 

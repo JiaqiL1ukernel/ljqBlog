@@ -3,3 +3,4 @@ D:\code\ljqBlog\ljq-admin\src\main\java\com\ljq\config\SecurityConfiger.java
 D:\code\ljqBlog\ljq-admin\src\main\java\com\ljq\filter\JwtAurhticationFilter.java
 D:\code\ljqBlog\ljq-admin\src\main\java\com\ljq\BlogAdminApplication.java
 D:\code\ljqBlog\ljq-admin\src\main\java\com\ljq\controller\LoginController.java
+D:\code\ljqBlog\ljq-admin\src\main\java\com\ljq\controller\WriteBlogController.java

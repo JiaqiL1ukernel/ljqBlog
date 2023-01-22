@@ -2,6 +2,7 @@ com\ljq\domain\vo\UserInfoVo.class
 com\ljq\service\impl\ImgUploadService.class
 com\ljq\service\CategoryService.class
 com\ljq\mapper\ArticleMapper.class
+com\ljq\service\impl\PermissionService.class
 com\ljq\annotation\SystemLog.class
 META-INF\spring-configuration-metadata.json
 com\ljq\service\impl\UserDetailServiceImpl.class
@@ -21,6 +22,7 @@ com\ljq\utils\WebUtils.class
 com\ljq\exception\SystemException.class
 com\ljq\domain\vo\categoryListVo.class
 com\ljq\domain\vo\PageVo.class
+com\ljq\domain\vo\DownloadVo.class
 com\ljq\domain\entity\LoginUser.class
 com\ljq\utils\PathUtils.class
 com\ljq\service\CommentService.class

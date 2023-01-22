@@ -7,14 +7,12 @@ import com.ljq.domain.vo.AdminUserInfoVo;
 import com.ljq.domain.vo.MenuVo;
 import com.ljq.domain.vo.RoutersVo;
 import com.ljq.domain.vo.UserInfoVo;
-import com.ljq.service.LoginService;
-import com.ljq.service.MenuService;
-import com.ljq.service.RoleService;
-import com.ljq.service.UserService;
+import com.ljq.service.*;
 import com.ljq.utils.BeanCopyUtil;
 import com.ljq.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +27,9 @@ public class LoginController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private UploadService uploadService;
 
     @PostMapping("/user/login")
     public ResponseResult login(@RequestBody User user){
@@ -65,5 +66,9 @@ public class LoginController {
         return loginService.logout();
     }
 
+    @PostMapping("/upload")
+    public ResponseResult uploadImg(MultipartFile img){
+        return uploadService.upload(img);
+    }
 
 }

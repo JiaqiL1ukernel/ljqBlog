@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -57,5 +58,13 @@ public class LoginServiceImpl implements LoginService {
         redisCache.deleteObject("login:"+userId);
         return ResponseResult.okResult();
 
+    }
+
+    @Override
+    public ResponseResult uploadImg(MultipartFile file) {
+
+
+
+        return ResponseResult.okResult();
     }
 }

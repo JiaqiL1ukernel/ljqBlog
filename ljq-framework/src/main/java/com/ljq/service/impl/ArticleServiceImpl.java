@@ -5,21 +5,24 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ljq.constant.SystemConstant;
 import com.ljq.domain.ResponseResult;
+import com.ljq.domain.dto.ArticleDto;
+import com.ljq.domain.dto.UpdateArticleDto;
 import com.ljq.domain.entity.Article;
+import com.ljq.domain.entity.ArticleTag;
 import com.ljq.domain.entity.Category;
-import com.ljq.domain.vo.ArticleDetailVo;
-import com.ljq.domain.vo.ArticleListVo;
-import com.ljq.domain.vo.HotArticleVo;
-import com.ljq.domain.vo.PageVo;
+import com.ljq.domain.vo.*;
 import com.ljq.mapper.ArticleMapper;
+import com.ljq.mapper.ArticleTagMapper;
 import com.ljq.mapper.CategoryMapper;
 import com.ljq.service.ArticleService;
+import com.ljq.service.ArticleTagService;
 import com.ljq.service.CategoryService;
 import com.ljq.utils.BeanCopyUtil;
 import com.ljq.utils.RedisCache;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +43,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private ArticleTagService articleTagService;
+
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
+
+    @Autowired
+    private ArticleMapper articleMapper;
 
     @Override
     public ResponseResult hotArticleList() {
@@ -124,5 +136,57 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
         redisCache.incrementCacheMapValue(key,id.toString(),1);
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult listArticle(Integer pageNum, Integer pageSize, ArticleDto articleDto) {
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.hasText(articleDto.getTitle()),Article::getTitle,articleDto.getTitle());
+        queryWrapper.like(StringUtils.hasText(articleDto.getSummary()),Article::getSummary,articleDto.getSummary());
+        Page<Article> articlePage = new Page<>(pageNum, pageSize);
+        page(articlePage,queryWrapper);
+        List<Article> records = articlePage.getRecords();
+        List<ArticleVo> articleVos = BeanCopyUtil.copyList(records, ArticleVo.class);
+        PageVo pageVo = new PageVo(articleVos, articlePage.getTotal());
+        return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult getArticleDetailAndTag(Long id) {
+        //查询article
+        Article article = getById(id);
+        ArticleTagVo articleTagVo = BeanCopyUtil.copyBean(article, ArticleTagVo.class);
+        articleTagVo.setTags(getTagsById(id));
+        return ResponseResult.okResult(articleTagVo);
+    }
+
+    @Override
+    public ResponseResult updateArticle(UpdateArticleDto updateArticleDto) {
+        //更新article表
+        updateById(BeanCopyUtil.copyBean(updateArticleDto,Article.class));
+        Long id = updateArticleDto.getId();
+        //更新article_tag表
+        LambdaQueryWrapper<ArticleTag> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ArticleTag::getArticleId,id);
+        articleTagMapper.delete(queryWrapper);
+        List<ArticleTag> tags = updateArticleDto.getTags().stream()
+                .map(tag -> new ArticleTag(id, tag))
+                .collect(Collectors.toList());
+        articleTagService.saveBatch(tags);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteArticle(Long id) {
+        articleMapper.deleteById(id);
+        return ResponseResult.okResult();
+    }
+
+    private List<Long> getTagsById(Long id) {
+        LambdaQueryWrapper<ArticleTag> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ArticleTag::getArticleId,id);
+        return articleTagService.list(queryWrapper).stream()
+                .map(articleTag -> articleTag.getTagId())
+                .collect(Collectors.toList());
     }
 }

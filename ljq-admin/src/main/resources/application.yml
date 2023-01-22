@@ -25,4 +25,7 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       id-type: auto
-
+oss:
+  accessKey: O0e6Y8rlPRCHEMl5S9y90aNK9aXNWtmh-Byd_YTm
+  secretKey: sItqcqRLaNTBK-crGWWC2codbFHOUKF7hiafIIZw
+  bucket: ljqblog

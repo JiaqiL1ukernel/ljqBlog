@@ -17,4 +17,7 @@ public interface TagService extends IService<Tag> {
     ResponseResult pageByTagName(Integer pageNum, Integer pageSize, TagListDto tagListDto);
 
     ResponseResult addTag(TagListDto tagListDto);
+
+    ResponseResult getTagInfo(Integer id);
+
 }
