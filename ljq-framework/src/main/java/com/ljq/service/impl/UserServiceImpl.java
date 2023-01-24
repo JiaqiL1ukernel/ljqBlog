@@ -1,20 +1,37 @@
 package com.ljq.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ljq.domain.ResponseResult;
+import com.ljq.domain.dto.AddUserDto;
+import com.ljq.domain.dto.UpdateUserDto;
+import com.ljq.domain.entity.Role;
 import com.ljq.domain.entity.User;
+import com.ljq.domain.entity.UserRole;
+import com.ljq.domain.vo.PageVo;
+import com.ljq.domain.vo.UserAndRoleVo;
 import com.ljq.domain.vo.UserInfoVo;
 import com.ljq.enums.AppHttpCodeEnum;
 import com.ljq.exception.SystemException;
 import com.ljq.mapper.UserMapper;
+import com.ljq.service.RoleService;
+import com.ljq.service.UserRoleService;
 import com.ljq.service.UserService;
 import com.ljq.utils.BeanCopyUtil;
+import com.ljq.utils.JwtUtil;
 import com.ljq.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 用户表(User)表服务实现类
@@ -27,6 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRoleService userRoleService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Override
     public ResponseResult userInfo() {
@@ -76,16 +99,113 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     }
 
-    private boolean nickNameExist(String nickName) {
+    @Override
+    public ResponseResult listAllUsers(Integer pageNum, Integer pageSize, String userName, String phonenumber, String status) {
+        Page<User> page = new Page<>(pageNum,pageSize);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.hasText(userName),User::getUserName,userName);
+        queryWrapper.eq(StringUtils.hasText(phonenumber),User::getPhonenumber,phonenumber);
+        queryWrapper.eq(StringUtils.hasText(status),User::getStatus,status);
+        page(page,queryWrapper);
+        PageVo pageVo = new PageVo(page.getRecords(), page.getTotal());
+        return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult addUser(AddUserDto addUserDto) {
+        User user = BeanCopyUtil.copyBean(addUserDto, User.class);
+        user.setPassword(passwordEncoder.encode(addUserDto.getPassword()));
+        save(user);
+        insertUserRole(addUserDto.getRoleIds(),user.getId());
+        return ResponseResult.okResult();
+    }
+
+    private void insertUserRole(List<Long> roleIds, Long id) {
+        if(roleIds!=null && roleIds.size()>0){
+            List<UserRole> userRoles = roleIds.stream()
+                    .map(roleId -> new UserRole(id, roleId)).collect(Collectors.toList());
+            userRoleService.saveBatch(userRoles);
+        }
+    }
+
+
+    @Override
+    public boolean nickNameExist(String nickName) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getNickName,nickName);
         return count(queryWrapper)>0;
     }
 
-    private boolean usernameExist(String userName) {
+    @Override
+    public boolean emailExist(String email) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail,email);
+        return count(queryWrapper) > 0;
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult deleteUser(Long id) {
+        removeById(id);
+        LambdaUpdateWrapper<UserRole> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(UserRole::getUserId,id);
+        userRoleService.remove(updateWrapper);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getUserAndRole(Long id) {
+        //查询rolesId
+        LambdaQueryWrapper<UserRole> UserRolequeryWrapper = new LambdaQueryWrapper<>();
+        List<Long> roleIds = userRoleService.list(UserRolequeryWrapper.eq(UserRole::getUserId,id)).stream()
+                .map(userRole -> userRole.getRoleId())
+                .collect(Collectors.toList());
+
+        //获取id对应的role信息
+        LambdaQueryWrapper<Role> roleQueryWrapper = new LambdaQueryWrapper<>();
+        roleQueryWrapper.in(roleIds.size()>0,Role::getId,roleIds);
+        List<Role> roles = roleService.list(roleQueryWrapper);
+
+        //获取user信息
+        User user = getById(id);
+
+        //返回
+        return ResponseResult.okResult(new UserAndRoleVo(roleIds,roles,user));
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult updateUserAndRoles(UpdateUserDto userDto) {
+        //更新user表信息
+        updateById(BeanCopyUtil.copyBean(userDto,User.class));
+        //更新user_role表信息
+            //根据userId删除user_role表项
+        Long id = userDto.getId();
+        LambdaUpdateWrapper<UserRole> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(UserRole::getUserId,id);
+        userRoleService.remove(updateWrapper);
+            //向user_role表中插入对应的roleIds
+        List<Long> roleId = userDto.getRoleIds();
+        List<UserRole> userRoles = roleId.stream()
+                .map(rId -> new UserRole(id, rId)).collect(Collectors.toList());
+        userRoleService.saveBatch(userRoles);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public boolean usernameExist(String userName) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserName,userName);
         return count(queryWrapper)>0;
     }
+    @Override
+    public boolean phonenumberExist(String phonenumber) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getPhonenumber,phonenumber);
+        return count(queryWrapper)>0;
+    }
+
+
 }
 

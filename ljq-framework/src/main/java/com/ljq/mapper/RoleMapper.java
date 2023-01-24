@@ -2,6 +2,7 @@ package com.ljq.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ljq.domain.entity.Role;
+import com.ljq.domain.vo.MenuVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

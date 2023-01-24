@@ -40,5 +40,7 @@ public class MenuVo {
 
     private List<MenuVo> children;
 
+    private String label ;
+
 
 }

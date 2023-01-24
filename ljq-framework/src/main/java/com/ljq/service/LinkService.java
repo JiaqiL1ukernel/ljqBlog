@@ -16,4 +16,6 @@ import org.springframework.stereotype.Service;
 public interface LinkService extends IService<Link> {
 
     ResponseResult getAllLink();
+
+    ResponseResult getLinkPage(Integer pageNum, Integer pageSize, String name, String status);
 }

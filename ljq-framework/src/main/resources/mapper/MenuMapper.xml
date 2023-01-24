@@ -47,4 +47,33 @@
             ;
     </select>
 
+
+    <select id="selectAllRouterMenuVo" resultType="com.ljq.domain.vo.MenuVo">
+        SELECT
+            distinct m.id, m.parent_id, m.menu_name, m.path, m.component,
+                     m.visible, m.status, IFNULL(m.perms,'') AS perms, m.is_frame,
+                     m.menu_type, m.icon, m.order_num, m.create_time,m.menu_name as label
+        FROM
+            sys_menu m
+        WHERE
+            m.menu_type in ('C','M') AND
+            m.del_flag = 0
+        ORDER BY
+            m.parent_id , m.order_num;
+    </select>
+
+    <select id="roleMenuTreeselect" resultType="com.ljq.domain.vo.MenuVo">
+        SELECT
+            distinct m.id, m.parent_id, m.menu_name, m.path, m.component,
+                     m.visible, m.status, IFNULL(m.perms,'') AS perms, m.is_frame,
+                     m.menu_type, m.icon, m.order_num, m.create_time,m.menu_name as label
+        FROM
+            sys_role_menu rm
+                LEFT JOIN sys_menu m ON rm.menu_id = m.id
+        WHERE
+            rm.role_id=#{id} AND
+            m.menu_type in ('C','F') AND
+            m.del_flag = 0;
+    </select>
+
 </mapper>

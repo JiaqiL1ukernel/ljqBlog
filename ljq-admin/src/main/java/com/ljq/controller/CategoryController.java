@@ -3,6 +3,8 @@ package com.ljq.controller;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.ljq.domain.ResponseResult;
+import com.ljq.domain.dto.CategoryDto;
+import com.ljq.domain.dto.UpdateCatecoryDto;
 import com.ljq.domain.entity.Category;
 import com.ljq.domain.vo.CategoryVo;
 import com.ljq.domain.vo.DownloadVo;
@@ -13,9 +15,7 @@ import com.ljq.utils.WebUtils;
 import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
@@ -57,4 +57,34 @@ public class CategoryController {
         List<Category> list = categoryService.list();
         return ResponseResult.okResult(BeanCopyUtil.copyList(list, CategoryVo.class));
     }
+
+    @GetMapping("/list")
+    public ResponseResult list(Integer pageNum,Integer pageSize,String name,String status){
+        return categoryService.getPage(pageNum,pageSize,name,status);
+    }
+
+
+    @PostMapping()
+    public ResponseResult addCategory(@RequestBody CategoryDto categoryDto){
+        return categoryService.addCategory(categoryDto);
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseResult getCategoryById(@PathVariable("id")Long id){
+        return categoryService.getCategoryById(id);
+    }
+
+    @PutMapping()
+    public  ResponseResult updateCategory(@RequestBody UpdateCatecoryDto catecoryDto){
+        return categoryService.updateCategory(catecoryDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseResult deleteCategory(@PathVariable("id") Long id){
+        categoryService.removeById(id);
+        return ResponseResult.okResult();
+    }
+
+
 }

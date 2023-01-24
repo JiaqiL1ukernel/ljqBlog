@@ -2,6 +2,7 @@ package com.ljq.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ljq.domain.ResponseResult;
+import com.ljq.domain.dto.AddRoleDto;
 import com.ljq.domain.dto.RoleDto;
 import com.ljq.domain.entity.Role;
 
@@ -21,4 +22,16 @@ public interface RoleService extends IService<Role> {
     ResponseResult getRole(Integer pageNum, Integer pageSize, String roleName, String status);
 
     ResponseResult updateRoleStatus(RoleDto roleDto);
+
+    ResponseResult addRole(AddRoleDto role);
+
+    ResponseResult getRoleById(Long id);
+
+    ResponseResult roleMenuTreeselect(Long id);
+
+    ResponseResult updateRole(AddRoleDto roleDto);
+
+    ResponseResult deleteById(Long id);
+
+    ResponseResult listAllRole();
 }

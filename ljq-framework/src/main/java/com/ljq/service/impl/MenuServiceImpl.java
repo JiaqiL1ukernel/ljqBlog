@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ljq.constant.SystemConstant;
 import com.ljq.domain.ResponseResult;
 import com.ljq.domain.entity.Menu;
-import com.ljq.domain.vo.MenuTreeVo;
+
 import com.ljq.domain.vo.MenuVo;
 import com.ljq.domain.vo.SelectMenuVo;
 import com.ljq.mapper.MenuMapper;
@@ -80,33 +80,28 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     @Override
     public ResponseResult treeselect() {
-        List<Menu> list = list();
-        List<MenuVo> menuVos = BeanCopyUtil.copyList(list, MenuVo.class);
+        List<MenuVo> menuVos = getBaseMapper().selectAllRouterMenuVo();
         List<MenuVo> menuTree = getMenuTree(menuVos, 0L);
-        List<MenuTreeVo> menuTreeVos = BeanCopyUtil.copyList(menuTree, MenuTreeVo.class);
-        List<MenuTreeVo> treeVos = setLabel(menuTreeVos);
-        return ResponseResult.okResult(treeVos);
+        return ResponseResult.okResult(menuTree);
     }
 
 
     //给menus的子菜单children属性赋值
-    private List<MenuVo> getMenuTree(List<MenuVo> menus,Long parentId) {
+    public List<MenuVo> getMenuTree(List<MenuVo> menus,Long parentId) {
         return menus.stream()
                 .filter(menu->menu.getParentId().equals(parentId))
                 .map(menu->menu.setChildren(getChildren(menu,menus)))
                 .collect(Collectors.toList());
     }
 
-    private List<MenuVo> getChildren(MenuVo menu, List<MenuVo> menus) {
+    public List<MenuVo> getChildren(MenuVo menu, List<MenuVo> menus) {
         return menus.stream()
                 .filter(m->m.getParentId().equals(menu.getId()))
                 .map(m->m.setChildren(getChildren(m,menus)))
                 .collect(Collectors.toList());
     }
 
-    public List<MenuTreeVo> setLabel(List<MenuTreeVo> menuTreeVos){
-        return menuTreeVos;
-    }
+
 
 
 }
